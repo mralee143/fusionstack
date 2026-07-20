@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "framer-plugin": {
+      "command": "node",
+      "args": ["/path/to/framer-plugin-mcp/build/index.js"]
+    },
+    "magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": {
+        "API_KEY": "${MAGIC_API_KEY}"
+      }
+    }
+  }
+}
