@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { site } from "@/lib/site";
-import Aurora from "./Aurora";
+import ShaderBackground from "./ShaderBackground";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const rise = (delay: number) => ({
@@ -53,23 +53,8 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-dvh flex-col overflow-hidden"
     >
-      {/* Ambient background: drifting aurora + the rising bottom arc */}
-      <Aurora />
-      <div className="hero-arc-glow" aria-hidden />
-      <div className="hero-arc" aria-hidden />
-
-      {/* 3D perspective floor grid — receding tech backdrop */}
-      <div className="hero-3d" aria-hidden>
-        <div className="hero-3d-floor" />
-      </div>
-
-      {/* Faint line grid + sweeping light beams */}
-      <div className="hero-grid" aria-hidden />
-      <div className="hero-beams" aria-hidden>
-        <span className="hero-beam hero-beam-1" />
-        <span className="hero-beam hero-beam-2" />
-        <span className="hero-beam hero-beam-3" />
-      </div>
+      {/* Animated shader background (Swirl → ChromaFlow → FlutedGlass → FilmGrain) */}
+      <ShaderBackground />
 
       {/* 3D ring — centered above the headline, floating + spinning */}
       <div className="hero-ring-3d" aria-hidden>
@@ -84,14 +69,14 @@ export default function Hero() {
         <div className="mb-3 flex flex-col gap-3 sm:mb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
           <motion.p
             {...rise(0.05)}
-            className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-foreground"
+            className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-gray-900"
           >
-            <span aria-hidden className="h-2.5 w-2.5 bg-foreground" />
+            <span aria-hidden className="h-2.5 w-2.5 bg-gray-900" />
             Digital Product Studio
           </motion.p>
 
           <motion.div {...rise(0.15)} className="max-w-xs text-left lg:text-right">
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-gray-600">
               {site.name} builds digital products &amp; automation for modern brands.
             </p>
           </motion.div>
@@ -100,12 +85,12 @@ export default function Hero() {
         {/* Display headline — stacks left on mobile, spreads on desktop */}
         <div className="relative flex flex-col">
           <motion.h1 {...rise(0.1)} className="relative z-[2] self-start">
-            <span className={`${displayLine} text-foreground`}>Digital Products</span>
+            <span className={`${displayLine} text-gray-900`}>Digital Products</span>
           </motion.h1>
 
           <motion.div {...rise(0.2)} className="relative z-[2] self-start sm:self-end">
             <span className={displayLine}>
-              <span className="text-muted-foreground">&amp; </span>
+              <span className="text-gray-500">&amp; </span>
               <RotatingWord />
             </span>
           </motion.div>
