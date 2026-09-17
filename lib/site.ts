@@ -1,13 +1,16 @@
+import { projects } from "./projects";
+
 export const site = {
   name: "Fusion Stack",
   tagline: "Design · Develop · Automate · Grow",
-  instagram: "https://instagram.com/fusionstackofficial",
+  instagram: "https://www.instagram.com/fusionstackofficial/",
   instagramHandle: "fusionstackofficial",
-  linkedin: "https://linkedin.com/company/fusionstack",
-  facebook: "https://facebook.com/fusionstackofficial",
-  github: "https://github.com/mralee143",
-  whatsapp: "https://wa.me/1234567890",
-  email: "hello@fusionstack.agency",
+  linkedin: "https://www.linkedin.com/in/fusionstackofficial",
+  facebook: "https://www.facebook.com/profile.php?id=61590523869649",
+  whatsapp: "https://wa.me/923127312721",
+  whatsappDisplay: "+92 312 7312721",
+  messenger: "https://m.me/61590523869649",
+  email: "fusionstackofficial@gmail.com",
 } as const;
 
 /** Top-level nav. Items with `menu` render a dropdown. */
@@ -50,10 +53,21 @@ export const values = [
   },
 ] as const;
 
+/**
+ * The oversized centred statement in the About section. It reveals word by
+ * word, so keep it to two or three sentences — longer and the reveal drags.
+ */
+export const about = {
+  statement:
+    "We design, build and automate digital products end to end — brand systems, web and mobile apps, AI workflows, and the growth engine around them. The people you meet are the people who build, and everything ships documented, tested and yours.",
+} as const;
+
 export const hero = {
   headline: ["Digital Products &", "Automation for Modern", "Brands"],
   kicker: "Pay for outcomes, not hours.",
   clients: "40+ Clients",
+  /** The small stat beside the avatar stack. */
+  stat: { value: "+40", label: "Clients and counting" },
   primaryCta: { label: "Get a free 48hr roadmap", href: "#contact" },
   secondaryCta: { label: "See 40+ client wins", href: "#work" },
   trust: ["Top 1% engineering talent", "100% on-time delivery", "Reply within 24h", "No spam"],
@@ -78,14 +92,14 @@ export const clientOverflow = "+36";
 export const services = [
   {
     id: "branding",
-    title: "Branding",
+    title: "Branding & Graphic Design",
     icon: "brand",
     summary: "Building impactful brand identities that resonate and endure.",
     points: ["Branding Strategy", "Rebrand", "Brand Position", "Graphic Design", "Packaging"],
   },
   {
     id: "web-mobile",
-    title: "Web & Mobile Application",
+    title: "Web & Mobile Applications",
     icon: "web",
     summary: "Fast, scalable web and mobile apps engineered end to end.",
     points: ["Next.js Web Apps", "iOS & Android", "Headless Commerce", "API Integration", "Progressive Web Apps"],
@@ -106,7 +120,7 @@ export const services = [
   },
   {
     id: "digital-marketing",
-    title: "Digital Marketing",
+    title: "Digital Marketing & SEO",
     icon: "marketing",
     summary: "Measurement and campaigns that compound growth month over month.",
     points: ["SEO", "Paid Ads", "Social Media", "Email Marketing", "Analytics & CRO"],
@@ -120,32 +134,7 @@ export const services = [
   },
 ] as const;
 
-export const work = [
-  {
-    title: "Northwind Commerce",
-    category: "Headless storefront",
-    result: "+38% conversion",
-    year: "2026",
-  },
-  {
-    title: "Atlas Fintech",
-    category: "Product design system",
-    result: "4× shipping speed",
-    year: "2026",
-  },
-  {
-    title: "Verse Studio",
-    category: "3D brand site",
-    result: "2.1s → 0.7s LCP",
-    year: "2025",
-  },
-  {
-    title: "Cadence Ops",
-    category: "AI automation suite",
-    result: "1,200 hrs/yr saved",
-    year: "2025",
-  },
-] as const;
+/** Portfolio projects (with their images and case-study copy) live in lib/projects.ts. */
 
 export const stats = [
   { value: "40+", label: "Products shipped" },
@@ -226,4 +215,5 @@ export const searchIndex = [
   { label: "About us", href: "#about", group: "Pages" },
   { label: "Contact", href: "#contact", group: "Pages" },
   ...services.map((s) => ({ label: s.title, href: "#services", group: "Services" })),
+  ...projects.map((p) => ({ label: p.title, href: `/work/${p.slug}`, group: "Work" })),
 ];

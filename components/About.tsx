@@ -1,70 +1,41 @@
-"use client";
+import Link from "next/link";
+import Reveal from "./Reveal";
+import WordReveal from "./WordReveal";
+import Arrow from "./Arrow";
+import { about, values } from "@/lib/site";
 
-import { motion } from "framer-motion";
-import { Users, Zap, ShieldCheck, LineChart } from "lucide-react";
-import Reveal, { RevealItem } from "./Reveal";
-import { values } from "@/lib/site";
-
-const icons = {
-  users: Users,
-  zap: Zap,
-  shield: ShieldCheck,
-  chart: LineChart,
-} as const;
-
+/**
+ * The big centred statement. The paragraph fades in word by word, then the
+ * four operating principles sit beneath it as a quiet bordered row.
+ */
 export default function About() {
   return (
-    <section id="about" className="scroll-mt-24 py-28">
-      <div className="container-x">
-        {/* Editorial intro — heading + narrative */}
-        <Reveal className="max-w-3xl">
-          <p className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-foreground">
-            <span aria-hidden className="h-px w-8 bg-foreground/40" />
-            About us
-          </p>
-          <h2 className="mt-5 text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-            One team, one stack, one accountable outcome.
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-foreground/70">
-            Fusion Stack was built on a simple idea: design, engineering and
-            automation shouldn&apos;t live in separate buildings. The people who
-            design your product are the people who ship it — and the people who
-            keep it running.
-          </p>
-        </Reveal>
+    <section id="about" className="scroll-mt-28 pb-[clamp(6rem,14vw,12.5rem)]">
+      <div className="container-narrow text-center">
+        <WordReveal
+          text={about.statement}
+          className="display mx-auto max-w-[22ch] text-[length:var(--text-big)] tracking-[0.01em] text-ink sm:max-w-none"
+        />
 
-        {/* Value cards — numbered, flat black */}
-        <Reveal stagger className="mt-16 grid gap-6 md:grid-cols-2">
-          {values.map((value, i) => {
-            const Icon = icons[value.icon];
-            return (
-              <RevealItem key={value.title}>
-                <motion.article
-                  whileHover={{ y: -6 }}
-                  transition={{ type: "spring", stiffness: 320, damping: 24 }}
-                  className="group h-full rounded-[var(--radius-card)] border border-border p-8 transition-colors duration-300 hover:border-foreground/30"
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-border text-foreground">
-                      <Icon size={24} strokeWidth={1.75} aria-hidden />
-                    </span>
-                    <span
-                      aria-hidden
-                      className="select-none text-5xl font-bold tabular-nums text-foreground/10 sm:text-6xl"
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h3 className="mt-6 text-xl font-semibold tracking-tight text-foreground">
-                    {value.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-foreground/70">
-                    {value.body}
-                  </p>
-                </motion.article>
-              </RevealItem>
-            );
-          })}
+        <Reveal delay={0.1} className="mt-11">
+          <Link href="#contact" className="btn-border">
+            More About Us
+            <Arrow />
+          </Link>
+        </Reveal>
+      </div>
+
+      <div className="container-mid mt-[clamp(4rem,9vw,7rem)]">
+        <Reveal stagger className="grid gap-px border-t border-border sm:grid-cols-2 lg:grid-cols-4">
+          {values.map((value, i) => (
+            <div key={value.title} className="border-b border-border py-8 lg:border-b-0 lg:pr-8">
+              <span className="font-sans text-xs text-ink/30">0{i + 1}</span>
+              <h3 className="display mt-4 text-[28px] font-normal leading-[1.1] text-ink">
+                {value.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink/50">{value.body}</p>
+            </div>
+          ))}
         </Reveal>
       </div>
     </section>

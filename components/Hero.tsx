@@ -1,117 +1,219 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { site } from "@/lib/site";
-import ShaderBackground from "./ShaderBackground";
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { hero, clientAvatars } from "@/lib/site";
+import Arrow from "./Arrow";
 
-const ease = [0.22, 1, 0.36, 1] as const;
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.75, ease, delay },
-});
+/**
+ * Hero, built 1:1 on the reference template's "tp-hero-2":
+ *
+ *  - The headline block and its backdrop are pinned while the column of
+ *    rotated stills underneath scrolls up past it. The side stills pass over
+ *    the headline; the blurred centre still passes behind it.
+ *  - Subtitle, title, and the bottom row fade up on load at 0.3s / 0.5s / 0.7s.
+ *  - Below 768px there is no pin and no stills, exactly as in the template.
+ *
+ * All sizes and offsets live in globals.css under "Hero".
+ */
 
-const displayLine =
-  "block text-[clamp(2rem,7vw,5rem)] font-bold leading-[0.9] tracking-tight";
+const boxes = [
+  { one: "hero-1.jpg", two: "hero-2.jpg", three: "hero-3.png" },
+  { one: "hero-4.jpg", two: "hero-5.jpg", three: "hero-3.png" },
+  { one: "hero-6.jpg", two: "hero-7.jpg" },
+];
 
-/** The gradient headword cycles through these, in order, on a loop. */
-const rotatingWords = ["Automation", "Development"] as const;
-
-function RotatingWord() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % rotatingWords.length),
-      2400
-    );
-    return () => clearInterval(id);
-  }, []);
-
+/** Stills render at their natural size, as in the template. */
+function Still({ file }: { file: string }) {
+  const blurred = file.endsWith(".png");
   return (
-    <span className="relative inline-block align-bottom">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={rotatingWords[index]}
-          className="text-gradient inline-block"
-          initial={{ opacity: 0, y: "0.35em" }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: "-0.35em" }}
-          transition={{ duration: 0.4, ease }}
-        >
-          {rotatingWords[index]}
-        </motion.span>
-      </AnimatePresence>
-    </span>
+    <Image
+      src={`/tpl/hero/${file}`}
+      alt=""
+      width={blurred ? 301 : 200}
+      height={blurred ? 301 : 230}
+    />
   );
 }
 
 export default function Hero() {
+  const wrapperRef = useRef<HTMLElement>(null);
+  const areaRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  // Passive effect on purpose — SmoothScroll (a layout effect) must exist first.
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // The backdrop is its own layer (see the markup), sized to the headline block.
+    const wrapper = wrapperRef.current;
+    const area = areaRef.current;
+    let lastHeight = 0;
+    const syncHeight = () => {
+      const h = area?.offsetHeight ?? 0;
+      if (!wrapper || h === lastHeight) return false;
+      lastHeight = h;
+      wrapper.style.setProperty("--hero-h", `${h}px`);
+      return true;
+    };
+    syncHeight();
+    const resize = new ResizeObserver(() => {
+      if (syncHeight()) ScrollTrigger.refresh();
+    });
+    if (area) resize.observe(area);
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          motion: "(prefers-reduced-motion: no-preference)",
+          reduced: "(prefers-reduced-motion: reduce)",
+          desktop: "(min-width: 768px)",
+        },
+        (context) => {
+          const { motion, desktop } = context.conditions as Record<string, boolean>;
+
+          // tp_fade_anim: from opacity 0 / y 40, 0.75s, power2.out, on load.
+          const fades = gsap.utils.toArray<HTMLElement>(".tp-fade", wrapperRef.current);
+          if (!motion) {
+            gsap.set(fades, { opacity: 1, y: 0 });
+            return;
+          }
+          fades.forEach((el) => {
+            gsap.fromTo(
+              el,
+              { opacity: 0, y: 40 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.75,
+                ease: "power2.out",
+                delay: Number(el.dataset.delay ?? 0.15),
+              },
+            );
+          });
+
+          // Backdrop and headline are pinned with identical settings, so they
+          // move as one while the blurred still can pass between them.
+          if (desktop) {
+            [bgRef.current, areaRef.current].forEach((pin) =>
+              ScrollTrigger.create({
+                trigger: wrapperRef.current,
+                pin,
+                scrub: 1,
+                start: "top 0",
+                end: "bottom 0%",
+                endTrigger: wrapperRef.current,
+                pinSpacing: false,
+              }),
+            );
+          }
+        },
+      );
+    }, wrapperRef);
+
+    return () => {
+      resize.disconnect();
+      ctx.revert();
+    };
+  }, []);
+
   return (
-    <section
-      id="top"
-      className="relative flex min-h-dvh flex-col overflow-hidden"
-    >
-      {/* Animated shader background (Swirl → ChromaFlow → FlutedGlass → FilmGrain) */}
-      <ShaderBackground />
+    <>
+      <section id="top" ref={wrapperRef} className="hero-wrapper">
+        {/*
+         * Layer order, bottom to top: backdrop (0) → blurred centre still (1)
+         * → headline (2) → side stills (3). The backdrop takes no space: it is
+         * as tall as the headline block and pulls it back up over itself.
+         */}
+        <div ref={bgRef} aria-hidden className="hero-bg" />
 
-      {/* 3D ring — centered above the headline, floating + spinning */}
-      <div className="hero-ring-3d" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/hero-ring.png" alt="" className="hero-ring-3d-img" />
-      </div>
+        <div ref={areaRef} className="hero-area">
+          <div className="hero-container">
+            <div className="mb-[25px] text-center">
+              <span className="tp-fade hero-subtitle" data-delay=".3">
+                Design, engineering and automation <br /> for brands that intend to lead
+              </span>
+              <h1 className="tp-fade hero-title" data-delay=".5">
+                Fusion Stack
+              </h1>
+            </div>
 
-      {/* Content */}
-      <div className="container-x relative z-10 flex flex-1 flex-col justify-center pb-24 pt-24 sm:pb-32 sm:pt-28">
-       <div className="mx-auto w-full max-w-5xl">
-        {/* Kicker + meta — stacked on mobile, spread on desktop */}
-        <div className="mb-3 flex flex-col gap-3 sm:mb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
-          <motion.p
-            {...rise(0.05)}
-            className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-gray-900"
-          >
-            <span aria-hidden className="h-2.5 w-2.5 bg-gray-900" />
-            Digital Product Studio
-          </motion.p>
+            <div className="flex flex-col md:flex-row md:items-center">
+              <div className="md:w-1/2">
+                <div
+                  className="tp-fade mb-[30px] flex items-center justify-center md:mb-0 md:justify-start"
+                  data-delay=".7"
+                >
+                  <div className="flex items-center">
+                    {clientAvatars.slice(0, 3).map((a, i) => (
+                      <Image
+                        key={a.src}
+                        src={a.src}
+                        alt={a.alt}
+                        width={100}
+                        height={100}
+                        className={`h-[50px] w-[50px] rounded-full border-[3px] border-white object-cover ${i > 0 ? "-ml-[18px]" : ""}`}
+                      />
+                    ))}
+                    <span className="-ml-[18px] flex h-[50px] w-[50px] items-center justify-center rounded-full border-[3px] border-white bg-ink text-white">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                        <path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div className="ml-[10px] text-[16px] leading-[1.25] tracking-[-0.01em]">
+                    <h4 className="font-bold text-ink">{hero.stat.value}</h4>
+                    <span className="text-[15px] text-muted-foreground md:text-[16px]">
+                      {hero.stat.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-          <motion.div {...rise(0.15)} className="max-w-xs text-left lg:text-right">
-            <p className="text-sm leading-relaxed text-gray-600">
-              {site.name} builds digital products &amp; automation for modern brands.
-            </p>
-          </motion.div>
+              <div className="md:w-1/2">
+                <div className="tp-fade text-center md:text-right" data-delay=".7">
+                  <Link href={hero.secondaryCta.href} className="btn-border">
+                    Explore Our Projects
+                    <Arrow />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Display headline — stacks left on mobile, spreads on desktop */}
-        <div className="relative flex flex-col">
-          <motion.h1 {...rise(0.1)} className="relative z-[2] self-start">
-            <span className={`${displayLine} text-gray-900`}>Digital Products</span>
-          </motion.h1>
-
-          <motion.div {...rise(0.2)} className="relative z-[2] self-start sm:self-end">
-            <span className={displayLine}>
-              <span className="text-gray-500">&amp; </span>
-              <RotatingWord />
-            </span>
-          </motion.div>
+        <div aria-hidden className="hero-img-wrap">
+          <div className="hero-container hero-container-1230">
+            {boxes.map((box, i) => (
+              <div key={i} className={`hero-img-box ${i === boxes.length - 1 ? "is-last" : ""}`}>
+                <div className="hero-img-1">
+                  <Still file={box.one} />
+                </div>
+                <div className="hero-img-2">
+                  <Still file={box.two} />
+                </div>
+                {box.three && (
+                  <div className="hero-img-3">
+                    <Still file={box.three} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-       </div>
+      </section>
 
-      </div>
-
-      {/* Scroll cue */}
-      <motion.a
-        href="#services"
-        {...rise(0.5)}
-        aria-label="Scroll down to services"
-        className="absolute inset-x-0 bottom-6 z-10 mx-auto flex w-fit cursor-pointer flex-col items-center"
-      >
-        <span className="hero-scroll">
-          <span className="hero-scroll-dot" aria-hidden />
-          <span className="hero-scroll-line" aria-hidden />
-          <span className="text-sm font-medium text-accent">Scroll Down</span>
-        </span>
-      </motion.a>
-    </section>
+      {/*
+       * In the template the last box's 900px bottom margin collapses out of the
+       * wrapper, so the pin ends 900px before the next section starts. This
+       * spacer reproduces that gap explicitly.
+       */}
+      <div aria-hidden className="hero-tail" />
+    </>
   );
 }

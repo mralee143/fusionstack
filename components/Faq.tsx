@@ -1,74 +1,73 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
-import Reveal, { RevealItem } from "./Reveal";
-import SectionHeading from "./SectionHeading";
 import { faqs } from "@/lib/site";
 
+/**
+ * FAQ as bordered rows. Native buttons
+ * plus aria-expanded so the accordion works from the keyboard and reads
+ * correctly to assistive tech.
+ */
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="scroll-mt-24 py-28">
-      <div className="container-x">
-        <SectionHeading
-          align="center"
-          eyebrow="Common Questions"
-          title={
-            <>
-              Questions, <span className="text-foreground">answered.</span>
-            </>
-          }
-          body="The things people usually ask before starting. Can't find yours? Send it through the form below."
-        />
+    <section id="faq" className="scroll-mt-28 pb-[clamp(6rem,14vw,10rem)]">
+      <div className="container-mid">
+        <p className="eyebrow mb-4">FAQ</p>
+        <h2 className="display mb-12 text-[length:var(--text-section)] font-light text-ink">
+          Questions we get asked
+        </h2>
 
-        <Reveal
-          stagger
-          className="mx-auto mt-16 max-w-3xl divide-y divide-border border-y border-border"
-        >
-          {faqs.map((item, i) => {
+        <div className="border-t border-border">
+          {faqs.map((faq, i) => {
             const isOpen = open === i;
             return (
-              <RevealItem key={item.q}>
+              <div key={faq.q} className="border-b border-border">
                 <h3>
                   <button
                     type="button"
                     onClick={() => setOpen(isOpen ? null : i)}
                     aria-expanded={isOpen}
-                    className="flex w-full cursor-pointer items-center justify-between gap-4 py-6 text-left"
+                    aria-controls={`faq-panel-${i}`}
+                    className="flex w-full cursor-pointer items-start justify-between gap-6 py-7 text-left"
                   >
-                    <span className="text-lg font-semibold text-foreground">{item.q}</span>
-                    <motion.span
-                      animate={{ rotate: isOpen ? 45 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="shrink-0 text-accent"
-                      aria-hidden
+                    <span
+                      className={`display text-[clamp(1.5rem,3.2vw,2.75rem)] font-light transition-colors duration-300 ${
+                        isOpen ? "text-ink" : "text-ink/50 hover:text-ink"
+                      }`}
                     >
-                      <Plus size={22} />
-                    </motion.span>
+                      {faq.q}
+                    </span>
+                    <span
+                      aria-hidden
+                      className={`mt-2 shrink-0 text-ink/60 transition-transform duration-300 ${
+                        isOpen ? "rotate-45" : ""
+                      }`}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path
+                          d="M11 1v20M1 11h20"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </span>
                   </button>
                 </h3>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <p className="pb-6 pr-10 leading-relaxed text-foreground">
-                        {item.a}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </RevealItem>
+
+                <div
+                  id={`faq-panel-${i}`}
+                  hidden={!isOpen}
+                  className="max-w-3xl pb-8 text-base leading-relaxed text-ink/60"
+                >
+                  {faq.a}
+                </div>
+              </div>
             );
           })}
-        </Reveal>
+        </div>
       </div>
     </section>
   );

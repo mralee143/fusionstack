@@ -1,101 +1,70 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import Reveal from "./Reveal";
+import { projects } from "@/lib/projects";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { services } from "@/lib/site";
-
-/** One distinct colour per stacked card. */
-const cardBg = [
-  "#0b2a5b",
-  "#1e56e3",
-  "#F26522",
-  "#0a1128",
-  "#0e5a4f",
-  "#3a2b6b",
-] as const;
-
-function ServiceCard({
-  service,
-  i,
-  total,
-  progress,
-  bg,
-}: {
-  service: (typeof services)[number];
-  i: number;
-  total: number;
-  progress: MotionValue<number>;
-  bg: string;
-}) {
-  // Cards below the top of the stack shrink slightly as the next one arrives.
-  const targetScale = 1 - (total - i) * 0.03;
-  const scale = useTransform(progress, [i / total, 1], [1, targetScale]);
-
-  return (
-    <div className="sticky top-0 flex h-screen items-center justify-center">
-      <motion.div
-        style={{ scale, top: `${i * 26}px`, backgroundColor: bg }}
-        className="relative flex h-[80vh] w-[92%] max-w-5xl overflow-hidden rounded-[32px] text-white shadow-[0_30px_80px_-40px_rgba(0,0,0,0.5)] lg:h-screen lg:w-full lg:max-w-none lg:rounded-none"
-      >
-        <div className="container-x flex h-full w-full flex-col justify-between py-8 sm:py-12 lg:py-16">
-        <div className="flex items-center justify-between text-sm text-white/70">
-          <span className="font-medium uppercase tracking-[0.2em]">Service</span>
-          <span className="tabular-nums">
-            {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-          </span>
-        </div>
-
-        <div>
-          <h3 className="text-[clamp(2.25rem,6vw,5rem)] font-semibold leading-[0.98] tracking-tight">
-            {service.title}
-          </h3>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-            {service.summary}
-          </p>
-          <ul className="mt-7 flex flex-wrap gap-2">
-            {service.points.map((point) => (
-              <li
-                key={point}
-                className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium backdrop-blur"
-              >
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
+/**
+ * Portfolio: full-bleed rounded stills with the client name set oversized
+ * across the bottom of each frame, category and year pinned to the corners.
+ *
+ * The frame art currently comes from public/tpl/portfolio/. To use a project's
+ * own artwork instead, swap `frame(i)` below for `project.cover`.
+ */
+const frame = (i: number) => `/tpl/portfolio/portfolio-${(i % 6) + 1}.jpg`;
 
 export default function Work() {
-  const container = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: container,
-    offset: ["start start", "end end"],
-  });
-
   return (
-    <section id="work" className="relative scroll-mt-24 py-20">
-      <div className="container-x">
-        <p className="flex items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-accent">
-          <span aria-hidden className="h-2 w-2 bg-accent" />
-          Portfolio
-        </p>
-      </div>
+    <section id="work" className="scroll-mt-28 pb-[clamp(3rem,6vw,5rem)]">
+      <div className="container-wide">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="eyebrow mb-4">Selected Work</p>
+            <h2 className="display text-[length:var(--text-section)] font-light text-ink">
+              Projects we put our name on
+            </h2>
+          </div>
+          <p className="max-w-md text-sm leading-relaxed text-ink/50">
+            Six engagements, one team. Every case study below was designed,
+            built and handed over by the same people you would be talking to.
+          </p>
+        </div>
 
-      <div ref={container} className="relative mt-8">
-        {services.map((service, i) => (
-          <ServiceCard
-            key={service.id}
-            service={service}
-            i={i}
-            total={services.length}
-            progress={scrollYProgress}
-            bg={cardBg[i % cardBg.length]}
-          />
-        ))}
+        <div className="space-y-[30px]">
+          {projects.map((project, i) => (
+            <Reveal key={project.slug}>
+              <Link
+                href={`/work/${project.slug}`}
+                className="group relative block overflow-hidden rounded-[var(--radius-card)]"
+              >
+                <div className="relative aspect-[4/5] sm:aspect-[16/10] xl:aspect-[16/8]">
+                  <Image
+                    src={frame(i)}
+                    alt={`${project.client} — ${project.title}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 90vw"
+                    className="object-cover transition-transform duration-[900ms] ease-[var(--ease-brand)] group-hover:scale-[1.03]"
+                  />
+                  {/* Keeps the oversized title legible over any artwork. */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1128]/80 via-[#0a1128]/10 to-[#0a1128]/30" />
+                </div>
+
+                <div className="absolute left-5 top-5 flex flex-wrap gap-2 sm:left-[50px] sm:top-[45px]">
+                  <span className="tag-on-image">{project.category}</span>
+                </div>
+                <div className="absolute right-5 top-5 sm:right-[50px] sm:top-[45px]">
+                  <span className="tag-on-image">{project.year}</span>
+                </div>
+
+                <div className="absolute inset-x-0 bottom-6 px-5 text-center sm:bottom-[50px]">
+                  <h3 className="display text-[clamp(2.25rem,8.5vw,8.75rem)] font-semibold text-white">
+                    {project.client}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/75 sm:text-base">{project.title}</p>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

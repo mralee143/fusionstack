@@ -1,118 +1,80 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Linkedin, Facebook, Github } from "lucide-react";
-import { services, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
-const serviceLinks = services.map((s) => ({ label: s.title, href: "#services" }));
-
-const company = [
-  { label: "Home", href: "#top" },
-  { label: "Services", href: "#services" },
-  { label: "Portfolio", href: "#work" },
-  { label: "Contact", href: "#contact" },
-];
-
-const helpful = [
-  { label: "Contact", href: "#contact" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms", href: "#" },
-  { label: "License", href: "#" },
-];
-
+/**
+ * Closing panel: a bordered, textured card carrying the oversized "Contact Us"
+ * CTA, with the meta rows above and below it.
+ */
 const socials = [
-  { icon: Linkedin, href: site.linkedin, label: "Fusion Stack on LinkedIn" },
-  { icon: Facebook, href: site.facebook, label: "Fusion Stack on Facebook" },
-  { icon: Github, href: site.github, label: "Fusion Stack on GitHub" },
+  { label: "Instagram", href: site.instagram },
+  { label: "LinkedIn", href: site.linkedin },
+  { label: "Facebook", href: site.facebook },
+  { label: "WhatsApp", href: site.whatsapp },
 ];
-
-function FooterCol({
-  title,
-  links,
-  className,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      <ul className="mt-4 space-y-3">
-        {links.map((l) => (
-          <li key={l.label}>
-            <Link
-              href={l.href}
-              className="text-sm text-muted-foreground transition-colors duration-200 hover:text-accent"
-            >
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
 
 export default function Footer() {
-  const year = new Date().getFullYear();
-
   return (
-    <footer className="border-t border-border pb-8 pt-16">
-      <div className="container-x">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-12">
-          {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-4">
-            <Link
-              href="#top"
-              className="flex items-center gap-2.5"
-              aria-label={`${site.name} — home`}
-            >
-              <Image src="/logo.png" alt="" width={40} height={40} className="h-9 w-9" />
-              <span className="text-lg font-bold tracking-[0.14em]">
-                FUSION<span className="text-accent">STACK</span>
-              </span>
+    <footer className="pb-[15px]">
+      <div className="px-[15px]">
+        <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-surface-2 px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(3rem,7vw,5rem)] pb-[clamp(5.5rem,8vw,5rem)] text-center">
+          {/* The texture only tints the ice-blue panel — it never carries the type. */}
+          <Image
+            src="/tpl/footer/footer-bg.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="-z-10 object-cover opacity-[0.12]"
+          />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/70 via-transparent to-[#cde7ff]/60" />
+
+          {/* Top meta */}
+          <div className="mb-[clamp(3rem,10vw,9.375rem)] flex flex-col items-center justify-between gap-6 md:flex-row">
+            <span className="text-lg text-ink">{site.tagline}</span>
+            <Link href="/" className="flex items-center gap-3" aria-label={`${site.name} — home`}>
+              <Image src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" />
+              <span className="display text-2xl font-medium text-ink">{site.name}</span>
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Fusion Stack is a digital product studio specializing in brand, web
-              &amp; mobile engineering, and AI automation — building measurable
-              products for modern brands. Our work is built on craft, teamwork and
-              delivering real impact.
-            </p>
-            <div className="mt-6 flex items-center gap-4">
-              {socials.map(({ icon: Icon, href, label }) => (
+            <span className="text-lg text-ink">Based in Pakistan</span>
+          </div>
+
+          {/* CTA */}
+          <div className="pb-[clamp(2.5rem,6vw,4.375rem)]">
+            <span className="text-base text-ink/70">
+              Contact us and let&rsquo;s bring your vision to life
+            </span>
+            <h2 className="display mt-2">
+              <Link
+                href="#contact"
+                className="inline-block text-[length:var(--text-mega)] font-normal uppercase tracking-[-0.01em] text-ink transition-transform duration-500 ease-[var(--ease-brand)] hover:scale-[1.03]"
+              >
+                Contact Us
+              </Link>
+            </h2>
+          </div>
+
+          {/* Bottom meta */}
+          <div className="flex flex-col items-center justify-between gap-5 md:flex-row">
+            <span className="text-sm text-ink/60">
+              Built in-house by {site.name}
+            </span>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {socials.map((s) => (
                 <a
-                  key={label}
-                  href={href}
+                  key={s.label}
+                  href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={label}
-                  className="text-muted-foreground transition-colors duration-200 hover:text-accent"
+                  className="link-line text-sm text-ink"
                 >
-                  <Icon size={20} aria-hidden />
+                  {s.label}
                 </a>
               ))}
             </div>
+            <span className="text-sm text-ink/60">
+              Copyright &copy; {new Date().getFullYear()}
+            </span>
           </div>
-
-          <FooterCol title="Services" links={serviceLinks} className="lg:col-span-4" />
-          <FooterCol title="Company" links={company} className="lg:col-span-2" />
-          <FooterCol title="Helpful Links" links={helpful} className="lg:col-span-2" />
-        </div>
-
-        {/* Bottom bar */}
-        <div className="mt-14 border-t border-border pt-8 text-center">
-          <p className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span aria-hidden>🇵🇰</span>
-            Proudly Made in Pakistan — Innovative Tech, Global Impact
-            <span aria-hidden>🇵🇰</span>
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            © {year}.{" "}
-            <Link href="#top" className="text-accent hover:underline">
-              {site.name}
-            </Link>
-            . All rights reserved.
-          </p>
         </div>
       </div>
     </footer>

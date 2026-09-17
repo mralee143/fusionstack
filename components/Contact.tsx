@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Loader2, Check, Instagram, Mail } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
 import Reveal from "./Reveal";
-import SectionHeading from "./SectionHeading";
+import Arrow from "./Arrow";
 import { site } from "@/lib/site";
 
-type Status = "idle" | "sending" | "sent";
+type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Partial<Record<"name" | "email" | "brief", string>>;
 
 const budgets = ["< $5k", "$5k – $15k", "$15k – $50k", "$50k +"];
@@ -45,46 +45,77 @@ export default function Contact() {
     }
 
     setStatus("sending");
-    // Wire this to your inbox/CRM endpoint — the UI contract is already here.
-    await new Promise((r) => setTimeout(r, 900));
-    setStatus("sent");
-    form.reset();
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_SHEET_ENDPOINT;
+      const payload = new URLSearchParams({
+        name: String(data.get("name") ?? ""),
+        email: String(data.get("email") ?? ""),
+        budget: String(data.get("budget") ?? ""),
+        brief: String(data.get("brief") ?? ""),
+      });
+
+      if (endpoint) {
+        // Google Apps Script Web App. `no-cors` + urlencoded avoids a CORS
+        // preflight; the row still lands in the Sheet even though the opaque
+        // response can't be read.
+        await fetch(endpoint, { method: "POST", mode: "no-cors", body: payload });
+      } else {
+        // No Sheet endpoint configured yet — simulate so the UI still works.
+        await new Promise((r) => setTimeout(r, 900));
+      }
+
+      setStatus("sent");
+      form.reset();
+    } catch {
+      setStatus("error");
+    }
   }
 
   const field =
-    "min-h-[48px] w-full rounded-xl border border-border bg-surface px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/70 transition-colors duration-200 focus:border-accent focus:outline-none";
+    "min-h-[52px] w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink placeholder:text-muted-foreground/60 transition-colors duration-200 focus:border-accent focus:outline-none";
 
   return (
-    <section id="contact" className="scroll-mt-24 py-28">
-      <div className="container-x grid gap-14 lg:grid-cols-[1fr_1.1fr]">
+    <section id="contact" className="scroll-mt-28 pb-[clamp(6rem,14vw,10rem)]">
+      <div className="container-mid grid gap-14 lg:grid-cols-[1fr_1.1fr]">
         <div>
-          <SectionHeading
-            eyebrow="Contact"
-            title={
-              <>
-                Tell us what you&apos;re <span className="text-foreground">building.</span>
-              </>
-            }
-            body="Send a short brief. You'll get a real reply from the people who'd do the work — usually within one business day."
-          />
+          <p className="eyebrow mb-4">Contact</p>
+          <h2 className="display text-[length:var(--text-section)] font-light leading-[1.05] text-ink">
+            Tell us what you&rsquo;re building
+          </h2>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-ink/50">
+            Send a short brief. You&rsquo;ll get a real reply from the people
+            who&rsquo;d do the work — usually within one business day.
+          </p>
 
-          <Reveal delay={0.1} className="mt-10 space-y-3">
-            <a
-              href={`mailto:${site.email}`}
-              className="glass flex min-h-[56px] cursor-pointer items-center gap-3 rounded-xl px-4 transition-colors duration-200 hover:border-accent/50"
-            >
-              <Mail size={18} className="text-accent" aria-hidden />
-              <span className="text-sm">{site.email}</span>
-            </a>
-            <a
-              href={site.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass flex min-h-[56px] cursor-pointer items-center gap-3 rounded-xl px-4 transition-colors duration-200 hover:border-accent/50"
-            >
-              <Instagram size={18} className="text-accent" aria-hidden />
-              <span className="text-sm">{site.instagramHandle}</span>
-            </a>
+          <Reveal delay={0.1} className="mt-12 space-y-8">
+            <div>
+              <p className="eyebrow mb-2">Email</p>
+              <a href={`mailto:${site.email}`} className="link-line display text-3xl text-ink">
+                {site.email}
+              </a>
+            </div>
+            <div>
+              <p className="eyebrow mb-2">WhatsApp</p>
+              <a
+                href={site.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link-line display text-3xl text-ink"
+              >
+                {site.whatsappDisplay}
+              </a>
+            </div>
+            <div>
+              <p className="eyebrow mb-2">Instagram</p>
+              <a
+                href={site.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link-line display text-3xl text-ink"
+              >
+                {site.instagramHandle}
+              </a>
+            </div>
           </Reveal>
         </div>
 
@@ -92,11 +123,11 @@ export default function Contact() {
           <form
             onSubmit={onSubmit}
             noValidate
-            className="glass rounded-[var(--radius-card)] p-6 sm:p-8"
+            className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8"
           >
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="sm:col-span-1">
-                <label htmlFor="name" className="mb-2 block text-sm font-medium">
+                <label htmlFor="name" className="mb-2 block text-sm font-medium text-ink">
                   Name <span className="text-accent">*</span>
                 </label>
                 <input
@@ -109,14 +140,14 @@ export default function Contact() {
                   placeholder="Alee Haider"
                 />
                 {errors.name && (
-                  <p id="name-error" role="alert" className="mt-2 text-sm text-red-600">
+                  <p id="name-error" role="alert" className="mt-2 text-sm text-accent">
                     {errors.name}
                   </p>
                 )}
               </div>
 
               <div className="sm:col-span-1">
-                <label htmlFor="email" className="mb-2 block text-sm font-medium">
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-ink">
                   Email <span className="text-accent">*</span>
                 </label>
                 <input
@@ -131,17 +162,22 @@ export default function Contact() {
                   placeholder="you@company.com"
                 />
                 {errors.email && (
-                  <p id="email-error" role="alert" className="mt-2 text-sm text-red-600">
+                  <p id="email-error" role="alert" className="mt-2 text-sm text-accent">
                     {errors.email}
                   </p>
                 )}
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="budget" className="mb-2 block text-sm font-medium">
+                <label htmlFor="budget" className="mb-2 block text-sm font-medium text-ink">
                   Budget range
                 </label>
-                <select id="budget" name="budget" className={`${field} cursor-pointer`} defaultValue="">
+                <select
+                  id="budget"
+                  name="budget"
+                  className={`${field} cursor-pointer`}
+                  defaultValue=""
+                >
                   <option value="" disabled>
                     Select a range
                   </option>
@@ -154,7 +190,7 @@ export default function Contact() {
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="brief" className="mb-2 block text-sm font-medium">
+                <label htmlFor="brief" className="mb-2 block text-sm font-medium text-ink">
                   Project brief <span className="text-accent">*</span>
                 </label>
                 <textarea
@@ -167,11 +203,11 @@ export default function Contact() {
                   placeholder="What are you building, and what does success look like?"
                 />
                 {errors.brief ? (
-                  <p id="brief-error" role="alert" className="mt-2 text-sm text-red-600">
+                  <p id="brief-error" role="alert" className="mt-2 text-sm text-accent">
                     {errors.brief}
                   </p>
                 ) : (
-                  <p id="brief-help" className="mt-2 text-sm text-muted-foreground">
+                  <p id="brief-help" className="mt-2 text-sm text-ink/40">
                     Goals, timeline, and anything already in place.
                   </p>
                 )}
@@ -181,19 +217,25 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "sending"}
-              className="glow-cobalt mt-8 inline-flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-navy to-cobalt px-8 font-semibold text-white transition-transform duration-200 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-border mt-8 w-full cursor-pointer justify-center text-[clamp(1.25rem,2vw,1.75rem)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {status === "sending" && <Loader2 size={18} className="animate-spin" aria-hidden />}
-              {status === "sent" && <Check size={18} aria-hidden />}
+              {status === "sending" && <Loader2 size={20} className="animate-spin" aria-hidden />}
+              {status === "sent" && <Check size={20} aria-hidden />}
               {status === "sending" ? "Sending…" : status === "sent" ? "Brief received" : "Send brief"}
+              {status === "idle" && <Arrow />}
             </button>
 
             <p aria-live="polite" className="sr-only">
               {status === "sent" ? "Your brief was sent. We'll reply within one business day." : ""}
             </p>
             {status === "sent" && (
-              <p className="mt-4 text-center text-sm text-accent">
+              <p className="mt-4 text-center text-sm text-ink/70">
                 Thanks — we&apos;ll reply within one business day.
+              </p>
+            )}
+            {status === "error" && (
+              <p role="alert" className="mt-4 text-center text-sm text-accent">
+                Something went wrong. Please email us at {site.email} or try again.
               </p>
             )}
           </form>

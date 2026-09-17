@@ -1,58 +1,45 @@
-"use client";
-
-import {
-  TrendingUp,
-  Wallet,
-  Sparkles,
-  Cpu,
-  Eye,
-  Boxes,
-  Zap,
-  Wind,
-  Globe,
-  Activity,
-} from "lucide-react";
+import Image from "next/image";
+import Marquee from "./Marquee";
 
 /**
- * Floating "trusted by" logo strip under the hero. No box — it sits on the page
- * background, uses the brand theme tokens, and auto-scrolls on a seamless CSS loop
- * (the list is rendered twice back-to-back). Swap the icons/names for real client
- * logos when you have them.
+ * Collaborators — two rows of light cards drifting in opposite directions.
+ * Swap the files in public/tpl/brand/ for real client marks when you have them.
  */
+const logos = [1, 2, 3, 4, 5].map((n) => `/tpl/brand/icon-${n}.png`);
 
-const clients = [
-  { name: "BestForex", Icon: TrendingUp },
-  { name: "Ledger", Icon: Wallet },
-  { name: "OpenAI", Icon: Sparkles },
-  { name: "Xevo", Icon: Cpu },
-  { name: "Fullview", Icon: Eye },
-  { name: "Arcol", Icon: Boxes },
-  { name: "Sprint", Icon: Zap },
-  { name: "Northwind", Icon: Wind },
-  { name: "Atlas", Icon: Globe },
-  { name: "Cadence", Icon: Activity },
-];
+function Card({ src }: { src: string }) {
+  return (
+    <div className="mx-[5px] grid h-[clamp(120px,18vw,220px)] min-w-[clamp(200px,32vw,380px)] place-content-center rounded-[var(--radius-card)] bg-surface-2 p-[clamp(1.25rem,3vw,2.5rem)]">
+      <Image
+        src={src}
+        alt=""
+        width={180}
+        height={60}
+        className="h-auto w-[clamp(90px,14vw,160px)] object-contain"
+      />
+    </div>
+  );
+}
 
 export default function LogoMarquee() {
-  // Rendered twice so the second copy slides in seamlessly as the first exits.
-  const row = [...clients, ...clients];
-
   return (
-    <section aria-label="Trusted by" className="relative z-10 border-y border-border/70 py-10">
-      <p className="logo-bar-label">
-        Trusted by ambitious teams — the brands we design, build &amp; automate for
-      </p>
-
-      <div className="logo-track-mask">
-        <ul className="logo-track" aria-hidden>
-          {row.map(({ name, Icon }, i) => (
-            <li key={`${name}-${i}`} className="logo-item">
-              <Icon className="logo-item-icon" strokeWidth={1.75} aria-hidden />
-              {name}
-            </li>
-          ))}
-        </ul>
+    <section aria-label="Collaborators" className="pb-[clamp(5rem,10vw,8.75rem)]">
+      <div className="container-mid mb-10">
+        <h2 className="display text-[length:var(--text-section)] font-light text-ink">
+          Collaborators
+        </h2>
       </div>
+
+      <Marquee duration={40} className="pb-[10px]">
+        {logos.map((src, i) => (
+          <Card key={`a-${i}`} src={src} />
+        ))}
+      </Marquee>
+      <Marquee duration={40} reverse>
+        {[...logos].reverse().map((src, i) => (
+          <Card key={`b-${i}`} src={src} />
+        ))}
+      </Marquee>
     </section>
   );
 }

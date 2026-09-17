@@ -1,13 +1,19 @@
-import Nav from "./Nav";
+import Header from "./Header";
 import Hero from "./Hero";
-import LogoMarquee from "./LogoMarquee";
-import Services from "./Services";
+import MarqueeBanner from "./MarqueeBanner";
+import About from "./About";
 import Work from "./Work";
-import Faq from "./Faq";
+import Services from "./Services";
+import Stats from "./Stats";
+import LogoMarquee from "./LogoMarquee";
 import Testimonials from "./Testimonials";
+import Faq from "./Faq";
 import Contact from "./Contact";
 import Footer from "./Footer";
 import FloatingActions from "./FloatingActions";
+import BackToTop from "./BackToTop";
+import SearchDialog from "./SearchDialog";
+import SmoothScroll from "./SmoothScroll";
 
 export default function SiteShell() {
   return (
@@ -19,20 +25,30 @@ export default function SiteShell() {
         Skip to main content
       </a>
 
-      <Nav />
+      <Header />
 
-      <main id="main">
-        <Hero />
-        <LogoMarquee />
-        <Services />
-        <Work />
-        <Faq />
-        <Testimonials />
-        <Contact />
-      </main>
+      {/* Fixed UI (header, chat, dialogs) stays outside the smooth-scroll wrapper. */}
+      <SmoothScroll>
+        <main id="main">
+          <Hero />
+          <MarqueeBanner />
+          <About />
+          <Work />
+          <Services />
+          <Stats />
+          <LogoMarquee />
+          <Testimonials />
+          <Faq />
+          <Contact />
+        </main>
 
-      <Footer />
+        <Footer />
+      </SmoothScroll>
+
       <FloatingActions />
+      <BackToTop />
+      {/* Mounted for the ⌘K shortcut — the header stays minimal, so no button. */}
+      <SearchDialog showTrigger={false} />
     </>
   );
 }

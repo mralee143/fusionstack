@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, CornerDownLeft } from "lucide-react";
 import { searchIndex } from "@/lib/site";
+import { scrollToHash } from "./SmoothScroll";
 
-/** ⌘K / Ctrl-K palette that jumps to any section. */
-export default function SearchDialog() {
+/**
+ * ⌘K / Ctrl-K palette that jumps to any section. `showTrigger` renders the
+ * visible search button; the shortcut works either way, so pages with a
+ * minimal header can mount this with the trigger off.
+ */
+export default function SearchDialog({ showTrigger = true }: { showTrigger?: boolean }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -41,7 +49,17 @@ export default function SearchDialog() {
 
   function go(href: string) {
     setOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    // Route entries (/work/...) navigate; section entries scroll — but only
+    // when the section is on the page we are currently on.
+    if (!href.startsWith("#")) {
+      router.push(href);
+      return;
+    }
+    if (pathname !== "/") {
+      router.push(`/${href}`);
+      return;
+    }
+    scrollToHash(href);
   }
 
   function onInputKey(e: React.KeyboardEvent) {
@@ -59,6 +77,7 @@ export default function SearchDialog() {
 
   return (
     <>
+      {showTrigger && (
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -73,6 +92,7 @@ export default function SearchDialog() {
           ⌘K
         </kbd>
       </button>
+      )}
 
       <AnimatePresence>
         {open && (
@@ -88,7 +108,7 @@ export default function SearchDialog() {
               type="button"
               aria-label="Close search"
               onClick={() => setOpen(false)}
-              className="absolute inset-0 cursor-default bg-midnight/50 backdrop-blur-sm"
+              className="absolute inset-0 cursor-default bg-black/70 backdrop-blur-sm"
             />
 
             <motion.div
@@ -99,7 +119,7 @@ export default function SearchDialog() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="glass relative w-full max-w-lg overflow-hidden rounded-2xl"
+              className="panel relative w-full max-w-lg overflow-hidden rounded-2xl"
             >
               <div className="flex items-center gap-3 border-b border-border px-4">
                 <Search size={18} className="text-muted-foreground" aria-hidden />
