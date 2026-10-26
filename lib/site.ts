@@ -177,7 +177,7 @@ export const testimonials = [
     quote: "The people who designed our product are the people who shipped it. That single accountable team changed everything.",
     name: "Sofia Alvarez",
     role: "Head of Product, Atlas",
-    avatar: "/clients/client-1.png",
+    avatar: null,
   },
 ] as const;
 

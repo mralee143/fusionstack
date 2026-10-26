@@ -21,6 +21,9 @@ mkdirSync(OUT, { recursive: true });
 const SHOTS = [
   { key: "nsjewels", url: "https://nsjewelspk.com/" },
   { key: "bestforex", url: "https://bestforex.net.au/" },
+  { key: "catproxies", url: "https://catproxies.com/" },
+  { key: "melodia", url: "https://melodiatravel.com/" },
+  { key: "engelvoelkers", url: "https://www.engelvoelkers.com/" },
 ];
 
 const BROWSERS = [
@@ -46,6 +49,33 @@ const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844, mobile: true, out: 780 },
 ];
 
+/** Wait out "Checking your browser…" interstitials (up to ~20s). */
+async function passBotCheck(page) {
+  for (let i = 0; i < 20; i++) {
+    const blocked = await page
+      .evaluate(() => /checking your browser|just a moment/i.test(document.body?.innerText ?? ""))
+      .catch(() => true); // mid-navigation — try again
+    if (!blocked) {
+      await page.waitForSelector("body", { timeout: 15_000 }).catch(() => {});
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+}
+
+/** Click away cookie-consent banners so they don't cover the shot. */
+async function dismissConsent(page) {
+  const clicked = await page.evaluate(() => {
+    const re = /^(accept all|accept|allow all|accept cookies|i agree|agree|got it|ok|reject all)$/i;
+    const button = [...document.querySelectorAll("button, a[role=button]")].find((el) =>
+      re.test(el.textContent.trim())
+    );
+    button?.click();
+    return Boolean(button);
+  });
+  if (clicked) await new Promise((r) => setTimeout(r, 800));
+}
+
 /** Let lazy-loaded imagery paint before the shutter. */
 async function settle(page) {
   await page.evaluate(async () => {
@@ -54,7 +84,7 @@ async function settle(page) {
       const step = () => {
         y += window.innerHeight;
         window.scrollTo(0, y);
-        if (y < document.body.scrollHeight && y < 12000) setTimeout(step, 120);
+        if (y < (document.body?.scrollHeight ?? 0) && y < 12000) setTimeout(step, 120);
         else {
           window.scrollTo(0, 0);
           setTimeout(resolve, 600);
@@ -84,7 +114,16 @@ for (const shot of targets) {
     });
 
     try {
-      await page.goto(shot.url, { waitUntil: "networkidle2", timeout: 90_000 });
+      // Some sites never go network-idle (chat widgets, trackers) — shoot
+      // whatever has loaded by then rather than failing.
+      await page
+        .goto(shot.url, { waitUntil: "networkidle2", timeout: 60_000 })
+        .catch((error) => {
+          if (error.name !== "TimeoutError") throw error;
+          console.warn(`… ${shot.key} ${vp.name}: not idle after 60s, shooting anyway`);
+        });
+      await passBotCheck(page);
+      await dismissConsent(page);
       await settle(page);
 
       // Just the fold — these sit inside a browser/phone frame on the page.

@@ -55,11 +55,19 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       const link = (e.target as HTMLElement | null)?.closest("a");
       const href = link?.getAttribute("href");
       if (!href) return;
-      const hash = href.startsWith("#") ? href : pathname === "/" && href.startsWith("/#") ? href.slice(1) : null;
+      // The logo ("/") on the home page goes back to the top of the page.
+      const toTop = href === "/" && pathname === "/";
+      const hash = toTop
+        ? "#top"
+        : href.startsWith("#")
+          ? href
+          : pathname === "/" && href.startsWith("/#")
+            ? href.slice(1)
+            : null;
       if (!hash || hash === "#") return;
       if (!document.querySelector(hash)) return;
       e.preventDefault();
-      history.replaceState(null, "", hash);
+      history.replaceState(null, "", toTop ? "/" : hash);
       // Let an open menu release its scroll lock first.
       requestAnimationFrame(() => scrollToHash(hash));
     };
@@ -75,7 +83,18 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       }, 150);
     }
 
+    // Pause looping animations (marquees, poster walls, banners) while they
+    // are off screen, so the browser only animates what you can see.
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.target.toggleAttribute("data-paused", !e.isIntersecting);
+      },
+      { rootMargin: "200px 0px" },
+    );
+    document.querySelectorAll("[data-anim]").forEach((el) => visibility.observe(el));
+
     return () => {
+      visibility.disconnect();
       document.removeEventListener("click", onClick, true);
       window.clearTimeout(arrival);
       smoother?.kill();
