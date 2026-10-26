@@ -10,9 +10,13 @@ import FloatingActions from "@/components/FloatingActions";
 import BackToTop from "@/components/BackToTop";
 import { BrowserFrame, PhoneFrame } from "@/components/ShowcaseFrames";
 import Reveal from "@/components/Reveal";
+import WorkSections from "@/components/WorkSections";
+import PosterWall, { posterImages } from "@/components/PosterWall";
+import ServiceBanner from "@/components/ServiceBanner";
 import Arrow from "@/components/Arrow";
 import SmoothScroll from "@/components/SmoothScroll";
-import { projects, getProject } from "@/lib/projects";
+import DeviceCollage from "@/components/DeviceCollage";
+import { projects, getProject, frameArt as frame } from "@/lib/projects";
 import { site } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -31,9 +35,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     description: project.summary,
   };
 }
-
-/** Matches the frame art used for this project's card on the home page. */
-const frame = (i: number) => `/tpl/portfolio/portfolio-${(i % 6) + 1}.jpg`;
 
 function MetaItem({
   label,
@@ -57,6 +58,9 @@ export default async function ProjectPage({ params }: Params) {
 
   const index = projects.findIndex((p) => p.slug === slug);
   const showcase = project.showcase ?? [];
+  const sections = project.sections ?? [];
+  // Portfolio-only projects open on a poster wall; service projects keep their banner.
+  const posterHero = sections.length > 0 && !project.banner;
   const narrative = [
     { label: "Overview", body: project.overview },
     { label: "The challenge", body: project.challenge },
@@ -69,56 +73,122 @@ export default async function ProjectPage({ params }: Params) {
 
       <SmoothScroll>
         <main id="main">
-          {/* Hero ------------------------------------------------------------ */}
-          <section className="pt-[clamp(8rem,16vw,11rem)] pb-[clamp(2.5rem,6vw,4rem)]">
-            <div className="container-mid">
-              <Link
-                href="/#work"
-                className="group inline-flex w-fit items-center gap-2 text-sm text-ink/50 transition-colors hover:text-ink"
-              >
-                <ArrowLeft
-                  size={16}
-                  aria-hidden
-                  className="transition-transform duration-300 group-hover:-translate-x-1"
-                />
-                Back to work
-              </Link>
+          {/* Poster-wall hero, for portfolio projects with sections ----------- */}
+          {posterHero && (
+            <section className="pt-[clamp(6rem,10vw,7.5rem)] pb-[clamp(3rem,7vw,5rem)]">
+              <div className="container-wide">
+                <div className="relative flex min-h-[min(88svh,860px)] flex-col justify-end overflow-hidden rounded-[var(--radius-card)] p-[clamp(1.25rem,4vw,3.5rem)] text-white">
+                  <PosterWall images={posterImages(sections)} priority />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070b1a] via-[#070b1a]/60 to-transparent" />
 
-              <div className="mt-8 flex flex-wrap gap-2">
-                <span className="tag">{project.category}</span>
-                <span className="tag">{project.year}</span>
+                  <div className="relative">
+                    <Link
+                      href="/#work"
+                      className="group inline-flex w-fit items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      <ArrowLeft
+                        size={16}
+                        aria-hidden
+                        className="transition-transform duration-300 group-hover:-translate-x-1"
+                      />
+                      Back to work
+                    </Link>
+
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <span className="tag-on-image">{project.category}</span>
+                      <span className="tag-on-image">{project.year}</span>
+                    </div>
+
+                    <h1 className="display mt-5 text-[clamp(3.25rem,12vw,11rem)] font-semibold leading-[0.9]">
+                      {project.client}
+                    </h1>
+
+                    <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                      <p className="max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+                        {project.summary}
+                      </p>
+                      {/* Piece count per step */}
+                      <dl className="flex flex-wrap gap-x-8 gap-y-3">
+                        {sections.map((s) => (
+                          <div key={s.title}>
+                            <dt className="text-xs text-white/50">{s.title}</dt>
+                            <dd className="display text-[clamp(1.75rem,3vw,2.5rem)] leading-none">
+                              {s.images.length}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </section>
+          )}
 
-              <h1 className="display mt-6 text-[clamp(3rem,11vw,10rem)] font-semibold text-ink">
-                {project.client}
-              </h1>
-              <p className="display mt-2 text-[clamp(1.5rem,3.4vw,2.875rem)] font-light text-ink/70">
-                {project.title}
-              </p>
+          {/* Standard hero + key image, for every other project */}
+          {!posterHero && (
+            <>
+            {/* Hero ------------------------------------------------------------ */}
+            <section
+              className="pt-[clamp(8rem,16vw,11rem)] pb-[clamp(2.5rem,6vw,4rem)]"
+            >
+              <div className="container-mid">
+                <Link
+                  href="/#work"
+                  className="group inline-flex w-fit items-center gap-2 text-sm text-ink/50 transition-colors hover:text-ink"
+                >
+                  <ArrowLeft
+                    size={16}
+                    aria-hidden
+                    className="transition-transform duration-300 group-hover:-translate-x-1"
+                  />
+                  Back to work
+                </Link>
 
-              {project.summary && (
-                <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink/50 sm:text-lg">
-                  {project.summary}
+                <div className="mt-8 flex flex-wrap gap-2">
+                  <span className="tag">{project.category}</span>
+                  <span className="tag">{project.year}</span>
+                  </div>
+
+                <h1 className="display mt-6 text-[clamp(3rem,11vw,10rem)] font-semibold text-ink">
+                  {project.client}
+                </h1>
+                <p className="display mt-2 text-[clamp(1.5rem,3.4vw,2.875rem)] font-light text-ink/70">
+                  {project.title}
                 </p>
-              )}
-            </div>
-          </section>
 
-          {/* Key image ------------------------------------------------------- */}
-          <section className="pb-[clamp(3rem,7vw,5rem)]">
-            <div className="container-mid">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-card)] sm:aspect-[16/9]">
-                <Image
-                  src={frame(index)}
-                  alt={`${project.client} — ${project.title}`}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 90vw"
-                  className="object-cover"
-                />
+                {project.summary && (
+                  <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink/50 sm:text-lg">
+                    {project.summary}
+                  </p>
+                )}
               </div>
-            </div>
-          </section>
+            </section>
+
+            {/* Key image ------------------------------------------------------- */}
+            <section className="pb-[clamp(3rem,7vw,5rem)]">
+              <div className="container-mid">
+                {/* Matches this project's card on the home page. */}
+                <div className="group relative aspect-[4/5] overflow-hidden rounded-[var(--radius-card)] sm:aspect-[16/9]">
+                  {showcase.length > 0 ? (
+                    <DeviceCollage sites={showcase} />
+                  ) : project.banner ? (
+                    <ServiceBanner kind={project.banner} />
+                  ) : (
+                    <Image
+                      src={frame(index)}
+                      alt={`${project.client} — ${project.title}`}
+                      fill
+                      priority
+                      sizes="(max-width: 768px) 100vw, 90vw"
+                      className="object-cover"
+                    />
+                  )}
+                </div>
+              </div>
+            </section>
+            </>
+          )}
 
           {/* Meta strip ------------------------------------------------------ */}
           <section className="pb-[clamp(3rem,8vw,6rem)]">
@@ -149,8 +219,10 @@ export default async function ProjectPage({ params }: Params) {
                     Visit site
                     <ArrowUpRight size={14} aria-hidden />
                   </a>
-                ) : (
+                ) : showcase.length > 0 || sections.length > 0 ? (
                   "Delivered and handed over"
+                ) : (
+                  "Taking new projects"
                 )}
               </MetaItem>
             </div>
@@ -215,6 +287,11 @@ export default async function ProjectPage({ params }: Params) {
                 ))}
               </div>
             </section>
+          )}
+
+          {/* Work, step by step ---------------------------------------------- */}
+          {project.sections && project.sections.length > 0 && (
+            <WorkSections sections={project.sections} name={project.client} />
           )}
 
           {/* Live work ------------------------------------------------------- */}
@@ -317,7 +394,7 @@ export default async function ProjectPage({ params }: Params) {
                          * Scrolls sideways on a phone, lays the screens out evenly
                          * from small tablets up.
                          */}
-                        <ul className="-mx-6 mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-5">
+                        <ul className="-mx-[clamp(1rem,4vw,3rem)] mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[clamp(1rem,4vw,3rem)] pb-4 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-5">
                           {item.appScreens.map((screen, screenIndex) => (
                             <li
                               key={screen}

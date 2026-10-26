@@ -17,7 +17,7 @@ export default function Marquee({
   className?: string;
 }) {
   return (
-    <div className={`overflow-hidden ${className}`}>
+    <div data-anim className={`overflow-hidden ${className}`}>
       <div
         className={`marquee ${reverse ? "marquee-reverse" : ""}`}
         style={{ "--marquee-duration": `${duration}s` } as CSSProperties}

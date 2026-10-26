@@ -75,8 +75,8 @@
   --color-accent: #1e56e3;
   --color-on-accent: #ffffff;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: "MangoGrotesque", var(--font-inter), sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: "MangoGrotesque", var(--font-geist), sans-serif;
 
   --radius-card: 20px;
 
@@ -99,8 +99,12 @@
   color-scheme: light;
 }
 
-* {
-  border-color: var(--color-border);
+/* In the base layer so border-* colour utilities can override it — an
+   unlayered rule here would beat every Tailwind utility. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 html {
@@ -259,12 +263,25 @@ body {
 @media (max-width: 767px) { .hero-title { font-size: 105px; } }
 @media (min-width: 576px) and (max-width: 767px) { .hero-title { font-size: 150px; } }
 
-/* Hidden until GSAP fades it in (visible when scripting is off). */
+/*
+ * The template's tp_fade_anim, as CSS so it starts at the first paint rather
+ * than waiting for hydration — same 0.75s and easing (GSAP power2.out).
+ * Delays come from --tp-delay on each element.
+ */
 .tp-fade {
   opacity: 0;
+  animation: tp-fade-up 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) var(--tp-delay, 0.15s) both;
 }
-@media (scripting: none) {
-  .tp-fade { opacity: 1; }
+
+@keyframes tp-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* The stills column */
@@ -386,7 +403,7 @@ body {
   transition: 0.3s;
 }
 
-/* Same tag, but sitting on top of photography — stays white-on-glass there */
+/* Same tag, but sitting on top of photography or moving artwork */
 .tag-on-image {
   font-size: 14px;
   font-weight: 500;
@@ -398,8 +415,9 @@ body {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   color: #fff;
-  background: rgba(10, 17, 40, 0.28);
-  backdrop-filter: blur(6px);
+  /* Solid tint, not backdrop-filter: these sit on artwork that animates
+     constantly, and a live blur repaints every frame. */
+  background: rgba(10, 17, 40, 0.5);
   transition: 0.3s;
 }
 
@@ -478,9 +496,94 @@ body {
   opacity: 1;
 }
 
+/* Device collage (components/DeviceCollage.tsx) — portrait layout first,
+   card layout from `sm`. Rotation, hover fan-out, drift and parallax each use
+   their own property (rotate / translate / transform) so they stack. */
+.collage-slot {
+  left: var(--mx);
+  top: var(--my);
+  width: var(--mw);
+  rotate: var(--mr);
+}
+@media (min-width: 640px) {
+  .collage-slot {
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    rotate: var(--r);
+  }
+}
+.group:hover .collage-slot {
+  translate: var(--sx) var(--sy);
+}
+.collage-drift {
+  animation: collage-drift 7s ease-in-out infinite alternate;
+}
+@keyframes collage-drift {
+  from { transform: translateY(-6px); }
+  to { transform: translateY(8px); }
+}
+.collage-parallax {
+  translate: calc(var(--px, 0) * var(--depth) * 5px) calc(var(--py, 0) * var(--depth) * 4px);
+  transition: translate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Poster wall (components/PosterWall.tsx) */
+.poster-wall {
+  rotate: -8deg;
+}
+.poster-col {
+  animation: poster-scroll linear infinite;
+}
+@keyframes poster-scroll {
+  from { transform: translateY(0); }
+  /* Each column holds its posters twice; -50% lands on the second copy. */
+  to { transform: translateY(-50%); }
+}
+.group:hover .poster-col {
+  animation-play-state: paused;
+}
+
+/* Service banners (components/ServiceBanner.tsx) */
+.banner-float {
+  animation: banner-float 6s ease-in-out infinite alternate;
+}
+@keyframes banner-float {
+  from { transform: translateY(-6px); }
+  to { transform: translateY(8px); }
+}
+.banner-playhead {
+  animation: banner-playhead 6s linear infinite;
+}
+@keyframes banner-playhead {
+  from { translate: 0 0; }
+  to { translate: 89cqw 0; }
+}
+.banner-flow {
+  animation: banner-flow 1.6s linear infinite;
+}
+@keyframes banner-flow {
+  to { stroke-dashoffset: -4.8; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .banner-float,
+  .banner-flow,
+  .banner-playhead {
+    animation: none;
+  }
+  .poster-col {
+    animation: none;
+  }
+  .collage-drift {
+    animation: none;
+  }
+  .collage-parallax,
+  .group:hover .collage-slot {
+    translate: none;
   }
   .marquee {
     animation: none;
@@ -501,4 +604,26 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Testimonials: the drifting row stops while someone is reading a card. */
+.testimonial-row:hover .marquee {
+  animation-play-state: paused;
+}
+
+/* Looping animations pause while off screen (observer in SmoothScroll.tsx). */
+[data-paused],
+[data-paused] * {
+  animation-play-state: paused !important;
+}
+/* Promote the continuously moving layers so they animate on the GPU. */
+.poster-col,
+.marquee,
+.collage-drift,
+.banner-float {
+  will-change: transform;
+}
+/* Stacking work cards scale on scroll — keep each on its own GPU layer. */
+[data-stack-card] > a {
+  will-change: transform;
 }

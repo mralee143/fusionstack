@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
@@ -14,7 +14,8 @@ import Arrow from "./Arrow";
  *  - The headline block and its backdrop are pinned while the column of
  *    rotated stills underneath scrolls up past it. The side stills pass over
  *    the headline; the blurred centre still passes behind it.
- *  - Subtitle, title, and the bottom row fade up on load at 0.3s / 0.5s / 0.7s.
+ *  - Subtitle, title, and the bottom row fade up on load at 0.3s / 0.5s / 0.7s
+ *    (CSS, so they are never invisible while JavaScript loads).
  *  - Below 768px there is no pin and no stills, exactly as in the template.
  *
  * All sizes and offsets live in globals.css under "Hero".
@@ -71,47 +72,25 @@ export default function Hero() {
       mm.add(
         {
           motion: "(prefers-reduced-motion: no-preference)",
-          reduced: "(prefers-reduced-motion: reduce)",
           desktop: "(min-width: 768px)",
         },
         (context) => {
           const { motion, desktop } = context.conditions as Record<string, boolean>;
-
-          // tp_fade_anim: from opacity 0 / y 40, 0.75s, power2.out, on load.
-          const fades = gsap.utils.toArray<HTMLElement>(".tp-fade", wrapperRef.current);
-          if (!motion) {
-            gsap.set(fades, { opacity: 1, y: 0 });
-            return;
-          }
-          fades.forEach((el) => {
-            gsap.fromTo(
-              el,
-              { opacity: 0, y: 40 },
-              {
-                opacity: 1,
-                y: 0,
-                duration: 0.75,
-                ease: "power2.out",
-                delay: Number(el.dataset.delay ?? 0.15),
-              },
-            );
-          });
+          if (!motion || !desktop) return;
 
           // Backdrop and headline are pinned with identical settings, so they
-          // move as one while the blurred still can pass between them.
-          if (desktop) {
-            [bgRef.current, areaRef.current].forEach((pin) =>
-              ScrollTrigger.create({
-                trigger: wrapperRef.current,
-                pin,
-                scrub: 1,
-                start: "top 0",
-                end: "bottom 0%",
-                endTrigger: wrapperRef.current,
-                pinSpacing: false,
-              }),
-            );
-          }
+          // move as one while the blurred still passes between them.
+          [bgRef.current, areaRef.current].forEach((pin) =>
+            ScrollTrigger.create({
+              trigger: wrapperRef.current,
+              pin,
+              scrub: 1,
+              start: "top 0",
+              end: "bottom 0%",
+              endTrigger: wrapperRef.current,
+              pinSpacing: false,
+            }),
+          );
         },
       );
     }, wrapperRef);
@@ -135,10 +114,10 @@ export default function Hero() {
         <div ref={areaRef} className="hero-area">
           <div className="hero-container">
             <div className="mb-[25px] text-center">
-              <span className="tp-fade hero-subtitle" data-delay=".3">
+              <span className="tp-fade hero-subtitle" style={{ "--tp-delay": "0.3s" } as CSSProperties}>
                 Design, engineering and automation <br /> for brands that intend to lead
               </span>
-              <h1 className="tp-fade hero-title" data-delay=".5">
+              <h1 className="tp-fade hero-title" style={{ "--tp-delay": "0.5s" } as CSSProperties}>
                 Fusion Stack
               </h1>
             </div>
@@ -147,7 +126,7 @@ export default function Hero() {
               <div className="md:w-1/2">
                 <div
                   className="tp-fade mb-[30px] flex items-center justify-center md:mb-0 md:justify-start"
-                  data-delay=".7"
+                  style={{ "--tp-delay": "0.7s" } as CSSProperties}
                 >
                   <div className="flex items-center">
                     {clientAvatars.slice(0, 3).map((a, i) => (
@@ -176,7 +155,10 @@ export default function Hero() {
               </div>
 
               <div className="md:w-1/2">
-                <div className="tp-fade text-center md:text-right" data-delay=".7">
+                <div
+                  className="tp-fade text-center md:text-right"
+                  style={{ "--tp-delay": "0.7s" } as CSSProperties}
+                >
                   <Link href={hero.secondaryCta.href} className="btn-border">
                     Explore Our Projects
                     <Arrow />

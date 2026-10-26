@@ -45,7 +45,7 @@ export default function Footer() {
             </span>
             <h2 className="display mt-2">
               <Link
-                href="#contact"
+                href="/#contact"
                 className="inline-block text-[length:var(--text-mega)] font-normal uppercase tracking-[-0.01em] text-ink transition-transform duration-500 ease-[var(--ease-brand)] hover:scale-[1.03]"
               >
                 Contact Us

@@ -34,6 +34,17 @@ export type Project = {
   solution: string;
   /** Headline numbers. Keep to three — the grid is built for three. */
   results: { value: string; label: string }[];
+  /**
+   * Portfolio work grouped into ordered steps, rendered as numbered sections
+   * on the case-study page. w/h are the image's pixel size.
+   */
+  sections?: {
+    title: string;
+    blurb: string;
+    images: { src: string; w: number; h: number }[];
+  }[];
+  /** Card and hero art drawn in code (components/ServiceBanner.tsx) instead of an image. */
+  banner?: "marketing" | "automation" | "video";
   /** Optional live URL. Omit it and the "Visit site" button is not rendered. */
   live?: string;
   /**
@@ -66,49 +77,20 @@ const img = (slug: string, file: string) => `/work/${slug}/${file}`;
 
 export const projects: Project[] = [
   {
-    slug: "northwind-branding",
-    title: "Northwind Brand System",
-    client: "Northwind",
-    category: "Branding & Graphic Design",
-    year: "2026",
-    summary:
-      "A full identity rebuild that gave a 12-year-old retailer one voice across every surface.",
-    cover: img("northwind-branding", "cover.png"),
-    gallery: [
-      img("northwind-branding", "01.jpg"),
-      img("northwind-branding", "02.jpg"),
-      img("northwind-branding", "03.jpg"),
-    ],
-    services: ["Brand Strategy", "Visual Identity", "Packaging", "Guidelines"],
-    stack: ["Figma", "Illustrator", "After Effects"],
-    duration: "9 weeks",
-    overview:
-      "Northwind had grown from one store to eleven without ever revisiting the identity it launched with. Every location, deck and package looked like it came from a different company.",
-    challenge:
-      "The mark did not survive small sizes, the palette had drifted into six unofficial variants, and nobody internally could say what the brand stood for in a sentence.",
-    solution:
-      "We ran a positioning sprint with the leadership team, rebuilt the mark around a single geometric construction, and shipped a token-based system so the web team and the print supplier pull from the same source.",
-    results: [
-      { value: "11", label: "Locations rolled out" },
-      { value: "1 week", label: "Asset turnaround, from 6" },
-      { value: "+38%", label: "Brand recall in survey" },
-    ],
-  },
-  {
     slug: "web-mobile",
-    title: "Web & Mobile Applications",
-    client: "NS Jewels · Best Forex",
-    category: "Web & Mobile Applications",
+    title: "Web, Mobile & UI/UX Design",
+    client: "Websites, Apps & UI/UX",
+    category: "Web, Mobile & UI/UX",
     year: "2026",
     summary:
-      "Live client builds — an online jewellery store, and a money-transfer platform with apps on both stores.",
+      "Live client builds — a money-transfer platform with apps on both stores, a jewellery store, a proxy provider, a travel agency and a luxury real-estate brand.",
     cover: img("web-mobile", "cover.png"),
     gallery: [],
-    services: ["Web Development", "Mobile Applications", "Ecommerce", "Maintenance"],
-    stack: ["Next.js", "React Native", "Node.js"],
+    services: ["UI/UX Design", "Web Development", "Mobile Applications", "Ecommerce", "Maintenance"],
+    stack: ["Figma", "Next.js", "React Native", "Node.js"],
     duration: "Ongoing",
     overview:
-      "Two live products we designed, built and still maintain: a jewellery storefront and a cross-border money transfer platform that ships on web, iOS and Android.",
+      "Live products we designed in Figma, built and still maintain — from a cross-border money transfer platform on web, iOS and Android to storefronts, SaaS and service businesses.",
     challenge: "",
     solution: "",
     results: [],
@@ -150,124 +132,318 @@ export const projects: Project[] = [
           ios: "https://apps.apple.com/au/app/best-forex/id6787967522",
         },
       },
+      {
+        name: "CatProxies",
+        kind: "SaaS Website",
+        url: "https://catproxies.com/",
+        blurb:
+          "A residential proxy provider — 20M+ IPs across 195 countries, with pricing, use cases and a customer dashboard.",
+        desktop: img("web-mobile", "catproxies-desktop.jpg"),
+        mobile: img("web-mobile", "catproxies-mobile.jpg"),
+        tags: ["SaaS", "Pricing", "Dashboard"],
+      },
+      {
+        name: "Melodia Travels",
+        kind: "Travel Agency Website",
+        url: "https://melodiatravel.com/",
+        blurb:
+          "A travel agency site for Umrah packages, ticketing, visit visas and worldwide tours, with WhatsApp enquiries built in.",
+        desktop: img("web-mobile", "melodia-desktop.jpg"),
+        mobile: img("web-mobile", "melodia-mobile.jpg"),
+        tags: ["Travel", "Packages", "Lead Capture"],
+      },
+      {
+        name: "Engel & Völkers",
+        kind: "Real Estate Website",
+        url: "https://www.engelvoelkers.com/",
+        blurb:
+          "A global luxury real-estate portal that routes buyers and sellers to the right country across 35 markets.",
+        desktop: img("web-mobile", "engelvoelkers-desktop.jpg"),
+        mobile: img("web-mobile", "engelvoelkers-mobile.jpg"),
+        tags: ["Real Estate", "Multi-country", "Luxury"],
+      },
+    ],
+  },
+  {
+    slug: "branding-design",
+    title: "Brand Identity, Social Media & Posters",
+    client: "Branding & Design",
+    category: "Branding & Graphic Design",
+    year: "2026",
+    summary:
+      "Identity systems, logos, social media campaigns and poster design — arranged below from brand foundations to finished campaigns.",
+    cover: img("branding-design", "sports-01.jpg"),
+    gallery: [],
+    services: ["Brand Identity", "Logo Design", "Social Media Design", "Poster Design", "Thumbnails"],
+    stack: ["Photoshop", "Illustrator", "Lightroom", "After Effects", "Figma"],
+    duration: "Ongoing",
+    overview:
+      "A selection of our branding and graphic design work, in the order a brand is built: the identity first, then the layouts and social content that carry it, then posters and key art.",
+    challenge: "",
+    solution: "",
+    results: [],
+    /* Rendered step by step on the case-study page. Images live in public/work/branding-design/. */
+    sections: [
+      {
+        title: "Brand Identity",
+        blurb:
+          "Complete identity systems — logo construction, colour palettes, typography and real-world mockups — plus a collection of marks for food, tech and real-estate brands.",
+        images: [
+          { src: img("branding-design", "identity-01.jpg"), w: 1200, h: 7741 },
+          { src: img("branding-design", "identity-02.jpg"), w: 500, h: 1323 },
+          { src: img("branding-design", "identity-03.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-04.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-05.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-06.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-07.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-08.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-09.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "identity-10.jpg"), w: 1600, h: 1200 },
+          { src: img("branding-design", "identity-11.jpg"), w: 1600, h: 900 },
+        ],
+      },
+      {
+        title: "Cavo Coffee — Full Brand",
+        blurb:
+          "A complete café identity, from the logo and brand guide to uniforms, cups, packaging, storefront signage, menus and stationery.",
+        images: [
+          { src: img("branding-design", "cavo-01.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "cavo-02.jpg"), w: 1402, h: 1122 },
+          { src: img("branding-design", "cavo-03.jpg"), w: 1402, h: 1122 },
+          { src: img("branding-design", "cavo-04.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "cavo-05.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "cavo-06.jpg"), w: 1402, h: 1122 },
+          { src: img("branding-design", "cavo-07.jpg"), w: 1402, h: 1122 },
+          { src: img("branding-design", "cavo-08.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "cavo-09.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "cavo-10.jpg"), w: 1024, h: 1535 },
+          { src: img("branding-design", "cavo-11.jpg"), w: 1086, h: 1448 },
+          { src: img("branding-design", "cavo-12.jpg"), w: 1402, h: 1122 },
+          { src: img("branding-design", "cavo-13.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "cavo-14.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-15.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-16.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-17.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-18.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-19.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-20.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-21.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-22.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-23.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-24.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-25.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-26.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-27.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-28.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-29.jpg"), w: 1024, h: 1024 },
+          { src: img("branding-design", "cavo-30.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "cavo-31.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "cavo-32.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "cavo-33.jpg"), w: 1024, h: 1536 },
+        ],
+      },
+      {
+        title: "Burger Roots — Full Brand",
+        blurb:
+          "A bold burger brand built around roots: logo variations, colours, typography, patterns, packaging, labels, menus and in-store graphics.",
+        images: [
+          { src: img("branding-design", "burger-01.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "burger-02.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "burger-03.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-04.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-05.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-06.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-07.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-08.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-09.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-10.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-11.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-12.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-13.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-14.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-15.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-16.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-17.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-18.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-19.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-20.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-21.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "burger-22.jpg"), w: 1024, h: 1536 },
+          { src: img("branding-design", "burger-23.jpg"), w: 1536, h: 1024 },
+        ],
+      },
+      {
+        title: "Personal Brand & Web Layouts",
+        blurb:
+          "A self-branding portfolio layout and a landing page design, built as long-form scrolling pages.",
+        images: [
+          { src: img("branding-design", "layouts-01.jpg"), w: 1200, h: 4062 },
+          { src: img("branding-design", "layouts-02.jpg"), w: 1200, h: 4339 },
+        ],
+      },
+      {
+        title: "Social Media Design",
+        blurb:
+          "Instagram posts and stories for burger and café brands, carousel series for gym, travel, tech-retail, food and agency clients, plus LinkedIn content, thumbnails and print ads.",
+        images: [
+          { src: img("branding-design", "social-new-10.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "social-new-11.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "social-new-12.jpg"), w: 1254, h: 1254 },
+          { src: img("branding-design", "social-new-13.jpg"), w: 900, h: 1600 },
+          { src: img("branding-design", "social-new-14.jpg"), w: 1024, h: 1536 },
+          { src: img("branding-design", "social-new-15.jpg"), w: 1536, h: 1024 },
+          { src: img("branding-design", "social-new-16.jpg"), w: 1054, h: 1492 },
+          { src: img("branding-design", "social-new-17.jpg"), w: 1535, h: 1024 },
+          { src: img("branding-design", "social-01.jpg"), w: 1600, h: 2500 },
+          { src: img("branding-design", "social-02.jpg"), w: 1600, h: 2500 },
+          { src: img("branding-design", "social-03.jpg"), w: 1600, h: 2500 },
+          { src: img("branding-design", "social-04.jpg"), w: 842, h: 1264 },
+          { src: img("branding-design", "social-05.jpg"), w: 921, h: 1152 },
+          { src: img("branding-design", "social-06.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "social-07.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "social-08.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-09.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-10.jpg"), w: 1080, h: 1350 },
+        ],
+      },
+      {
+        title: "Sports Posters",
+        blurb:
+          "Matchday, celebration and fight-night posters across football, cricket, UFC, WWE, F1 and esports.",
+        images: [
+          { src: img("branding-design", "sports-01.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-02.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-03.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-04.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-05.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-06.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-07.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "sports-08.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-09.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-10.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-11.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-12.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-13.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-14.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-15.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-16.jpg"), w: 1600, h: 1757 },
+          { src: img("branding-design", "sports-17.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-18.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-19.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-20.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-21.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-22.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "sports-23.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-24.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-25.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-26.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-27.jpg"), w: 1600, h: 900 },
+          { src: img("branding-design", "sports-28.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-29.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "sports-30.jpg"), w: 1080, h: 1350 },
+        ],
+      },
+      {
+        title: "Entertainment & Culture",
+        blurb:
+          "Film key art, celebrity portraits and festive designs for Eid and Hajj.",
+        images: [
+          { src: img("branding-design", "culture-01.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "culture-02.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "culture-03.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "culture-04.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "culture-05.jpg"), w: 1080, h: 1350 },
+        ],
+      },
     ],
   },
   {
     slug: "cadence-automation",
-    title: "Cadence Ops Automation Suite",
-    client: "Cadence Ops",
+    title: "Agents & workflows that run the busywork",
+    client: "AI Automation",
     category: "AI Automation",
-    year: "2025",
+    banner: "automation",
+    year: "2026",
     summary:
-      "AI agents that took 1,200 hours a year of quoting and triage off an ops team of nine.",
+      "AI agents and automations that answer leads, update your CRM and send follow-ups, so your team stops copy-pasting.",
     cover: img("cadence-automation", "cover.png"),
-    gallery: [
-      img("cadence-automation", "01.jpg"),
-      img("cadence-automation", "02.jpg"),
-      img("cadence-automation", "03.jpg"),
-    ],
-    services: ["AI Agents", "Workflow Automation", "CRM Integration", "Data Pipelines"],
-    stack: ["Next.js", "Claude API", "Postgres", "n8n"],
-    duration: "11 weeks",
+    gallery: [],
+    services: ["AI Agents", "Workflow Automation", "Chatbots", "CRM Integration"],
+    stack: ["n8n", "Zapier", "Claude API", "WhatsApp API"],
+    duration: "Per project or monthly",
     overview:
-      "Every inbound request at Cadence was read, classified and re-typed into the CRM by hand before anyone could quote it.",
-    challenge:
-      "Quotes took two days to leave the building, and roughly a fifth of inbound mail was never logged at all during busy weeks.",
-    solution:
-      "An agent now reads each thread, extracts the line items, drafts a quote against live pricing and files it in the CRM. A human approves rather than retypes, and every decision is logged for audit.",
-    results: [
-      { value: "1,200 hrs", label: "Saved per year" },
-      { value: "4 hrs", label: "Quote turnaround, from 2 days" },
-      { value: "100%", label: "Inbound logged" },
-    ],
+      "We map the repetitive work in your business, then build automations that handle it: replying to new leads on WhatsApp or email, qualifying them with an AI agent, logging them in your CRM, sending quotes and booking calls. Every step is visible and you approve what matters.",
+    challenge: "",
+    solution: "",
+    results: [],
   },
   {
     slug: "verse-studio-film",
-    title: "Verse Studio Launch Film",
-    client: "Verse Studio",
+    title: "Edits, reels & motion graphics",
+    client: "Video Editing",
     category: "Video Editing",
-    year: "2025",
+    banner: "video",
+    year: "2026",
     summary:
-      "A launch film plus 24 cut-downs that carried a product release across every channel.",
+      "Promo videos, reels and shorts cut for every platform, with motion graphics and colour grading.",
     cover: img("verse-studio-film", "cover.png"),
-    gallery: [
-      img("verse-studio-film", "01.jpg"),
-      img("verse-studio-film", "02.jpg"),
-      img("verse-studio-film", "03.jpg"),
-    ],
-    services: ["Edit", "Motion Graphics", "Colour Grading", "Reels & Shorts"],
+    gallery: [],
+    services: ["Promo Videos", "Reels & Shorts", "Motion Graphics", "Colour Grading"],
     stack: ["Premiere Pro", "After Effects", "DaVinci Resolve"],
-    duration: "6 weeks",
+    duration: "Per project or monthly",
     overview:
-      "Verse had three days of shot footage, a launch date four weeks out, and no through-line between the takes.",
-    challenge:
-      "The hero cut had to work as a 90-second stage film and survive being chopped into vertical ads without losing the story.",
-    solution:
-      "We cut the film around a single spoken thread, built the motion system so titles reflow between 16:9 and 9:16, and delivered a graded master with 24 platform-ready variants.",
-    results: [
-      { value: "2.4M", label: "Views in month one" },
-      { value: "24", label: "Cut-downs delivered" },
-      { value: "+61%", label: "Watch-through vs. last launch" },
-    ],
+      "We turn raw footage into videos that hold attention: a main edit with a clear story, then vertical cut-downs for Reels, Shorts and TikTok, with titles, motion graphics and a consistent colour grade.",
+    challenge: "",
+    solution: "",
+    results: [],
   },
   {
     slug: "meridian-growth",
-    title: "Meridian Growth Engine",
-    client: "Meridian Health",
+    title: "SEO, ads & social that compound",
+    client: "Digital Marketing & SEO",
     category: "Digital Marketing & SEO",
-    year: "2025",
-    summary:
-      "SEO, paid and lifecycle rebuilt around one measurement model that finally agreed with itself.",
-    cover: img("meridian-growth", "cover.png"),
-    gallery: [
-      img("meridian-growth", "01.jpg"),
-      img("meridian-growth", "02.jpg"),
-      img("meridian-growth", "03.jpg"),
-    ],
-    services: ["SEO", "Paid Ads", "Email Lifecycle", "Analytics & CRO"],
-    stack: ["GA4", "Google Ads", "Klaviyo", "Looker Studio"],
-    duration: "6 months, ongoing",
-    overview:
-      "Three agencies each reported a different number for the same month, so nobody trusted any of them enough to shift budget.",
-    challenge:
-      "Attribution was double-counting, organic had no content engine behind it, and the email programme was a single monthly newsletter.",
-    solution:
-      "We rebuilt tracking into one server-side model, published against a clustered content plan, and replaced the newsletter with six triggered lifecycle flows.",
-    results: [
-      { value: "3.1×", label: "Organic sessions" },
-      { value: "−44%", label: "Cost per qualified lead" },
-      { value: "22%", label: "Revenue from email, from 4%" },
-    ],
-  },
-  {
-    slug: "helio-design-system",
-    title: "Helio Product Design System",
-    client: "Helio Fintech",
-    category: "UI/UX Design",
+    banner: "marketing",
     year: "2026",
     summary:
-      "Research-led interface work and a design system that quadrupled how fast the team ships.",
-    cover: img("helio-design-system", "cover.png"),
-    gallery: [
-      img("helio-design-system", "01.jpg"),
-      img("helio-design-system", "02.jpg"),
-      img("helio-design-system", "03.jpg"),
-    ],
-    services: ["User Research", "Design System", "Prototyping", "Usability Testing"],
-    stack: ["Figma", "Storybook", "React", "Radix UI"],
-    duration: "12 weeks",
+      "Search, paid ads, social media and email working from one plan, with reporting you can actually read.",
+    cover: img("meridian-growth", "cover.png"),
+    gallery: [],
+    services: ["SEO", "Paid Ads", "Social Media", "Email Marketing", "Analytics"],
+    stack: ["Google Analytics", "Google Ads", "Meta Ads", "Search Console"],
+    duration: "Per project or monthly",
     overview:
-      "Helio's product had accumulated four button styles, three date pickers and no shared language between design and engineering.",
-    challenge:
-      "Each new screen was designed from scratch, and onboarding drop-off sat at 46% with nobody able to say which step lost people.",
-    solution:
-      "We ran moderated sessions on the live flow, rebuilt onboarding around the two steps that actually blocked users, and shipped a tokenised component library wired into Storybook.",
-    results: [
-      { value: "4×", label: "Shipping speed" },
-      { value: "−29pts", label: "Onboarding drop-off" },
-      { value: "62", label: "Components in the library" },
+      "We set up proper tracking first, then grow traffic and leads through SEO content, paid campaigns on Google and Meta, social media design and email. You get a monthly report that shows what worked and where the budget goes next.",
+    challenge: "",
+    solution: "",
+    results: [],
+    /* Real social media work for clients, shown as steps on the project page. */
+    sections: [
+      {
+        title: "Jocy Bakery — Instagram Campaign",
+        blurb:
+          "A full Instagram feed for a home bakery: launch posts, best-seller highlights, a sweet-or-savory poll, a why-choose-us post and a thank-you note, all in one soft blue-and-cream look.",
+        images: [
+          { src: img("branding-design", "social-new-01.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-02.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-03.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-04.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-05.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-06.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-07.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-08.jpg"), w: 1080, h: 1350 },
+          { src: img("branding-design", "social-new-09.jpg"), w: 1080, h: 1350 },
+        ],
+      },
     ],
   },
 ];
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);
+
+/**
+ * Template frame art from public/tpl/portfolio/, picked by the project's
+ * position. portfolio-2.jpg was removed, so that slot borrows portfolio-1.
+ * Projects with a `showcase` show their own screenshots instead.
+ */
+const FRAMES = [1, 1, 3, 4, 5, 6];
+export const frameArt = (i: number) => `/tpl/portfolio/portfolio-${FRAMES[i % FRAMES.length]}.jpg`;

@@ -45,23 +45,15 @@ function Wordmark({ onClick }: { onClick?: () => void }) {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [floating, setFloating] = useState(false);
   const pathname = usePathname();
 
   /*
-   * The bar sits over full-bleed artwork, so it stays transparent at the top
-   * and then gets out of the way: hidden while you scroll down, back with a
-   * frosted white backdrop when you scroll up.
+   * The bar stays visible on every section. It is transparent at the top of
+   * the page and picks up a frosted white backdrop once you scroll.
    */
   useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setFloating(y > 120);
-      setHidden(y > 160 && y > last);
-      last = y;
-    };
+    const onScroll = () => setFloating(window.scrollY > 120);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -85,9 +77,9 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 py-6 transition-[transform,background-color,backdrop-filter] duration-500 ease-[var(--ease-brand)] md:pt-10 md:pb-6 ${
-          hidden ? "-translate-y-full" : "translate-y-0"
-        } ${floating ? "bg-white/85 backdrop-blur-md md:pt-6" : "bg-transparent"}`}
+        className={`fixed inset-x-0 top-0 z-50 py-6 transition-[background-color,padding,box-shadow] duration-500 ease-[var(--ease-brand)] md:pt-10 md:pb-6 ${
+          floating ? "bg-white/90 shadow-[0_1px_0_rgba(10,17,40,0.06)] backdrop-blur-md md:pt-6" : "bg-transparent"
+        }`}
       >
         <div className="container-wide flex items-center justify-between">
           <Wordmark />
